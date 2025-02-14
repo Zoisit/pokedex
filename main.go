@@ -7,10 +7,25 @@ import (
 	"strings"
 )
 
+
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	
-	for {
+	commands := map[string]cliCommand{
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+		"help": {
+			name:        "help",
+			description: "Displays a help message",
+			callback:    commandHelp,
+		},
+	}
+
+	for true {
 		fmt.Print("Pokedex > ")
 		more := scanner.Scan()
 		if !more {
@@ -19,7 +34,15 @@ func main() {
 			text := strings.TrimSpace(scanner.Text())
 			text = strings.ToLower(text)
 			inputs := strings.Fields(text)
-			fmt.Printf("Your command was: %s\n", inputs[0]) //careful, index out of bounds possible
+
+			cmd, ok := commands[inputs[0]]
+			if ok {
+				cmd.callback()
+			} else {
+				fmt.Printf("Unknown command\n")
+			}
 		}
 	}
 }
+
+
