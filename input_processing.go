@@ -9,6 +9,10 @@ import (
 
 func main_loop() {
 	scanner := bufio.NewScanner(os.Stdin)
+
+	conf := config{}
+	first_areas := "https://pokeapi.co/api/v2/location-area/"
+	conf.next =  &first_areas
 	
 	for true {
 		fmt.Print("Pokedex > ")
@@ -18,7 +22,7 @@ func main_loop() {
 
 		cmd, ok := getCommands()[inputs[0]]
 		if ok {
-			cmd.callback()
+			cmd.callback(&conf)
 		} else {
 			fmt.Printf("Unknown command\n")
 		}
@@ -44,6 +48,16 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Displays the names of the next 20 location areas",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays the names of the previous 20 location areas",
+			callback:    commandMapBack,
 		},
 	}
 }
