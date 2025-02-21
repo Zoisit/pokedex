@@ -1,4 +1,4 @@
-package main
+package pokeapi
 
 type locationAreas struct {
 	Count    int    `json:"count"`

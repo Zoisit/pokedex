@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"github.com/Zoisit/pokedex/internal/pokeapi"
 )
 
 
@@ -26,7 +27,7 @@ func commandExit(conf *config) error {
 func commandHelp(conf *config) error {
 	commands := getCommands()
 	
-	fmt.Println("Welcome to the Pokedex!\nUsage:\n")
+	fmt.Println("Welcome to the Pokedex!\nUsage:")
 	for c := range commands {
 		fmt.Printf("%s: %s\n", commands[c].name, commands[c].description)
 	}
@@ -38,7 +39,7 @@ func commandMap(conf *config) error {
 	if conf.next == nil {
 		fmt.Println("You're on the last page of the location areas.")
 	} else {
-		location_areas, err := getLocationAreas(*conf.next)
+		location_areas, err := pokeapi.GetLocationAreas(*conf.next)
 
 		if err != nil {
 			return fmt.Errorf("There was an error retrieving the location areas: %v", err)
@@ -59,7 +60,7 @@ func commandMapBack(conf *config) error {
 	if conf.previous == nil {
 		fmt.Println("You're on the first page of the location areas.")
 	} else {
-		location_areas, err := getLocationAreas(*conf.previous)
+		location_areas, err := pokeapi.GetLocationAreas(*conf.previous)
 
 		if err != nil {
 			return fmt.Errorf("There was an error retrieving the location areas: %v", err)
