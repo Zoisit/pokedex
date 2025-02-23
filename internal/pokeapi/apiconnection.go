@@ -6,12 +6,16 @@ import (
 	"io"
 	"github.com/Zoisit/pokedex/internal/pokecache"
 	"time"
+	"fmt"
 )
 
-var (cache *pokecache.Cache)
+var (
+	cache *pokecache.Cache
+)
+
 
 func init() {
-    cache = pokecache.NewCache(30 * time.Second)
+    cache = pokecache.NewCache(2 * time.Minute)
 }
 
 func GetLocationAreas(url string) (locationAreas, error) {
@@ -40,6 +44,44 @@ func GetLocationAreas(url string) (locationAreas, error) {
 	err = json.Unmarshal(data, &la)
 	if err != nil {
 		return locationAreas{}, err
+	}
+
+	cache.Add(url, data) 
+
+	return la, err
+}
+
+func GetLocationInfo(location string) (LocationInfo, error) {
+	url := "https://pokeapi.co/api/v2/location-area/" + location
+	data, ok := cache.Get(url)
+	if ok {
+		la := LocationInfo{}
+		err := json.Unmarshal(data, &la)
+		if err != nil {
+			return LocationInfo{}, err
+		}
+		return la, err
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return LocationInfo{}, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		return LocationInfo{}, fmt.Errorf(res.Status)
+	}
+	
+	data, err = io.ReadAll(res.Body)
+	if err != nil {
+		return LocationInfo{}, err
+	}
+
+	la := LocationInfo{}
+	err = json.Unmarshal(data, &la)
+	if err != nil {
+		return LocationInfo{}, err
 	}
 
 	cache.Add(url, data) 

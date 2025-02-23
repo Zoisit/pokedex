@@ -22,7 +22,14 @@ func main_loop() {
 
 		cmd, ok := getCommands()[inputs[0]]
 		if ok {
-			cmd.callback(&conf)
+			conf.input = nil
+			if len(inputs) > 1 {
+				conf.input = &inputs[1]
+			}
+			err := cmd.callback(&conf)
+			if err != nil {
+				fmt.Println(err)
+			}
 		} else {
 			fmt.Printf("Unknown command\n")
 		}
@@ -58,6 +65,11 @@ func getCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Displays the names of the previous 20 location areas",
 			callback:    commandMapBack,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Displays the names of the Pokemon at the given location",
+			callback:    commandExplore,
 		},
 	}
 }
