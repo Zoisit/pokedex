@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"github.com/Zoisit/pokedex/internal/pokeapi"
 )
 
 func main_loop() {
@@ -13,6 +14,7 @@ func main_loop() {
 	conf := config{}
 	first_areas := "https://pokeapi.co/api/v2/location-area/"
 	conf.next =  &first_areas
+	conf.pokedex = make(map[string]pokeapi.PokemonInfo)
 	
 	for true {
 		fmt.Print("Pokedex > ")
@@ -70,6 +72,11 @@ func getCommands() map[string]cliCommand {
 			name:        "explore",
 			description: "Displays the names of the Pokemon at the given location",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Attempts to catch the given Pokémon. A succesful catch will add the Pokémon to the Pokédex.",
+			callback:    commandCatch,
 		},
 	}
 }

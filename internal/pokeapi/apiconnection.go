@@ -13,6 +13,9 @@ var (
 	cache *pokecache.Cache
 )
 
+const (
+	api = "https://pokeapi.co/api/v2/"
+)
 
 func init() {
     cache = pokecache.NewCache(2 * time.Minute)
@@ -52,7 +55,7 @@ func GetLocationAreas(url string) (locationAreas, error) {
 }
 
 func GetLocationInfo(location string) (LocationInfo, error) {
-	url := "https://pokeapi.co/api/v2/location-area/" + location
+	url := api + "location-area/" + location
 	data, ok := cache.Get(url)
 	if ok {
 		la := LocationInfo{}
@@ -87,4 +90,50 @@ func GetLocationInfo(location string) (LocationInfo, error) {
 	cache.Add(url, data) 
 
 	return la, err
+}
+
+func GetPokemonInfo(pokemon string) (PokemonInfo, error) {
+	url := api + "pokemon/" + pokemon
+	
+	data, err := getJSON(url)
+
+	if err != nil {
+		return PokemonInfo{}, err
+	} else {
+		la := PokemonInfo{}
+		err = json.Unmarshal(data, &la)
+		if err != nil {
+			return PokemonInfo{}, err
+		}
+
+		cache.Add(url, data) 
+
+		return la, err
+	}
+
+	
+}
+
+func getJSON(url string) ([]byte, error) {
+	data, ok := cache.Get(url)
+	if ok {
+		return data, nil
+	}
+
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode > 299 {
+		return nil, fmt.Errorf(res.Status)
+	}
+	
+	data, err = io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

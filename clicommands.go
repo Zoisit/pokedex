@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"github.com/Zoisit/pokedex/internal/pokeapi"
+	"math/rand"
 )
 
 
@@ -17,6 +18,7 @@ type config struct {
 	next     *string 
 	previous *string  
 	input *string
+	pokedex map[string]pokeapi.PokemonInfo
 }
 
 func commandExit(conf *config) error {
@@ -85,7 +87,7 @@ func commandExplore(conf *config) error {
 	location, err := pokeapi.GetLocationInfo(*conf.input)
 
 	if err != nil {
-		return fmt.Errorf("There was an error retrieving the information for location %v: %v", conf.input, err)
+		return fmt.Errorf("There was an error retrieving the information for location %v: %v", *conf.input, err)
 	}
 
 	if len(location.PokemonEncounters) == 0 {
@@ -96,6 +98,30 @@ func commandExplore(conf *config) error {
 			fmt.Println(" - " + pe.Pokemon.Name)
 		}
 	}	
+
+	return nil
+}
+
+func commandCatch(conf *config) error {
+	if conf.input == nil {
+		return fmt.Errorf("Please specify a Pokemon to catch. Pokémon can be seen with the explore command.")
+	}
+
+	pokemon, err := pokeapi.GetPokemonInfo(*conf.input)
+
+	if err != nil {
+		return fmt.Errorf("There was an error retrieving the information for Pokémon %v: %v", *conf.input, err)
+	}
+
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
+	//research: Blissey gives the highest amount of base exp, according to the api it's 635 (608 accodding to research), Sunkern is lowest with 36 - TODO: query all pokemon once and save the data 
+	chance := float32(rand.Intn(pokemon.BaseExperience)) / float32(pokemon.BaseExperience)
+	if chance * 10 >= 5 {
+		fmt.Printf("%s was caught!\n", pokemon.Name)
+		conf.pokedex[pokemon.Name] = pokemon
+	} else {
+		fmt.Printf("%s escaped...\n", pokemon.Name)
+	}
 
 	return nil
 }
