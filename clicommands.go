@@ -115,7 +115,7 @@ func commandCatch(conf *config) error {
 
 	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
 	//research: Blissey gives the highest amount of base exp, according to the api it's 635 (608 accodding to research), Sunkern is lowest with 36 - TODO: query all pokemon once and save the data 
-	chance := float32(rand.Intn(pokemon.BaseExperience)) / float32(pokemon.BaseExperience)
+	chance := float32(rand.Intn(pokemon.BaseExperience)) / float32(pokemon.BaseExperience) //TODO: might as well do completely random
 	if chance * 10 >= 5 {
 		fmt.Printf("%s was caught!\n", pokemon.Name)
 		conf.pokedex[pokemon.Name] = pokemon
@@ -123,5 +123,29 @@ func commandCatch(conf *config) error {
 		fmt.Printf("%s escaped...\n", pokemon.Name)
 	}
 
+	return nil
+}
+
+func commandInspect(conf *config) error {
+	if conf.input == nil {
+		return fmt.Errorf("Please specify a Pokémon in your Pokédex to inspect.")
+	}
+
+	pokemon, ok := conf.pokedex[*conf.input] 
+	if !ok {
+		return fmt.Errorf("You have not caught a %s", *conf.input)
+	}
+
+	fmt.Printf("Name: %s\n", pokemon.Name)
+	fmt.Printf("Height: %d\n", pokemon.Height)
+	fmt.Printf("Weight: %d\n", pokemon.Weight)
+	fmt.Println("Stats:")
+	for _, stat := range pokemon.Stats {
+		fmt.Printf("-%s: %d\n", stat.Stat.Name, stat.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, t := range pokemon.Types {
+		fmt.Printf("- %s\n", t.Type.Name)
+	}
 	return nil
 }
