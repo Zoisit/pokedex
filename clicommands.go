@@ -149,3 +149,17 @@ func commandInspect(conf *config) error {
 	}
 	return nil
 }
+
+func commandPokedex(conf *config) error {
+	fmt.Println("Your Pokedex:")
+	
+	for k, _ := range conf.pokedex {
+		fmt.Printf("- %s\n", k)
+	}
+
+	if len(conf.pokedex) == 0 {
+		fmt.Println("You did not ctach any Pokémon yet.")
+	}
+
+	return nil
+}
